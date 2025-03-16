@@ -1,0 +1,49 @@
+[gd_scene load_steps=7 format=3 uid="uid://b6hnue66gbear"]
+
+[ext_resource type="PackedScene" uid="uid://begqadjnhtuyn" path="res://Sailboat.tscn" id="1_ok0rg"]
+[ext_resource type="Script" uid="uid://bgy7edxw4xi4q" path="res://path_follow_3d.gd" id="2_dnb4d"]
+[ext_resource type="Script" uid="uid://dsf6w1p5kqill" path="res://camera_anchor.gd" id="2_it3md"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_it3md"]
+albedo_color = Color(0.370507, 0.289579, 0.381249, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_dnb4d"]
+size = Vector2(50, 50)
+
+[sub_resource type="Curve3D" id="Curve3D_it3md"]
+closed = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 1.58566, -1.34735, 11.9638, 0, 0, 0, 0, 0, 0, -9.14252, -10.4084, 10.571, 0, 0, 0, 0, 0, 0, -14.5272, -11.3418, -5.94734, 0, 0, 0, 0, 0, 0, -11.4639, -6.48067, -15.5009, 0, 0, 0, 0, 0, 0, -3.15155, 1.06377, -16.7141, 0, 0, 0, 0, 0, 0, 3.21269, 5.18599, -10.4038, 0, 0, 0, 0, 0, 0, 5.93273, 6.04154, -3.74064, 0, 0, 0, 0, 0, 0, 7.37097, 5.30265, 4.99617, 0, 0, 0, 0, 0, 0, 5.03919, 1.91932, 10.8814),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 9
+
+[node name="Node3D" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_it3md")
+mesh = SubResource("PlaneMesh_dnb4d")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.951969, 0.0957213, -0.290847, 0.306194, -0.297601, 0.904256, 0, -0.949879, -0.312617, -7.89279, 18.5242, -6.83234)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, -8.31157e-08, 0.310013, 0.950732, 2.71022e-08, 0.950732, -0.310013, -0.43139, 4.56191, 0.306175)
+fov = 115.1
+
+[node name="CameraAnchor" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.43139, 5.6109, 0)
+script = ExtResource("2_it3md")
+
+[node name="Path3D" type="Path3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.0241213)
+curve = SubResource("Curve3D_it3md")
+
+[node name="PathFollow3D" type="PathFollow3D" parent="Path3D"]
+transform = Transform3D(0.128746, -0.636759, 0.760238, 2.98023e-08, 0.766618, 0.642103, -0.991678, -0.0826683, 0.0986992, 1.58566, -1.34735, 11.9638)
+script = ExtResource("2_dnb4d")
+speed = null
+
+[node name="Sailboat" parent="Path3D/PathFollow3D" instance=ExtResource("1_ok0rg")]
+transform = Transform3D(0.128746, 2.98023e-08, -0.991678, -0.636759, 0.766618, -0.0826683, 0.760238, 0.642103, 0.0986992, 11.6285, 3.30829, -1.8515)

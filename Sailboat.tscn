@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://begqadjnhtuyn"]
+
+[ext_resource type="PackedScene" uid="uid://d2bgfg5kbi4bj" path="res://boat-sail-a.glb" id="1_dd2pb"]
+
+[node name="Sailboat" type="Node3D"]
+
+[node name="boat-sail-a2" parent="." instance=ExtResource("1_dd2pb")]

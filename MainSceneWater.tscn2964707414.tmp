@@ -1,0 +1,53 @@
+[gd_scene load_steps=8 format=3 uid="uid://b6hnue66gbear"]
+
+[ext_resource type="PackedScene" uid="uid://begqadjnhtuyn" path="res://Sailboat.tscn" id="1_ok0rg"]
+[ext_resource type="Script" uid="uid://bgy7edxw4xi4q" path="res://path_follow_3d.gd" id="2_dnb4d"]
+[ext_resource type="Script" uid="uid://dsf6w1p5kqill" path="res://camera_anchor.gd" id="2_it3md"]
+[ext_resource type="Script" uid="uid://d1capasuw3lus" path="res://wiggle.gd" id="3_rhr83"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_it3md"]
+albedo_color = Color(0.370507, 0.289579, 0.381249, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_dnb4d"]
+size = Vector2(50, 50)
+
+[sub_resource type="Curve3D" id="Curve3D_it3md"]
+closed = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 1.586, 0, 11.964, 0, 0, 0, 0, 0, 0, -9.143, 0, 10.571, 0, 0, 0, 0, 0, 0, -14.527, 0, -5.947, 0, 0, 0, 0, 0, 0, -11.464, 0, -15.501, 0, 0, 0, 0, 0, 0, -3.152, 0, -16.714, 0, 0, 0, 0, 0, 0, 3.213, 0, -10.404, 0, 0, 0, 0, 0, 0, 5.933, 0, -3.741, 0, 0, 0, 0, 0, 0, 7.371, 0, 4.996, 0, 0, 0, 0, 0, 0, 5.039, 0, 10.881),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 9
+
+[node name="Node3D" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_it3md")
+mesh = SubResource("PlaneMesh_dnb4d")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.951969, 0.0957213, -0.290847, 0.306194, -0.297601, 0.904256, 0, -0.949879, -0.312617, -7.89279, 18.5242, -6.83234)
+shadow_enabled = true
+
+[node name="Path3D" type="Path3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.0241213)
+curve = SubResource("Curve3D_it3md")
+
+[node name="PathFollow3D" type="PathFollow3D" parent="Path3D"]
+transform = Transform3D(0.950767, 0, 0.309901, 0, 1, 0, -0.3099, 0, 0.950768, -11.9882, 0, 1.84204)
+progress = 20.0
+script = ExtResource("2_dnb4d")
+speed = 1.0
+
+[node name="wiggle" type="Node3D" parent="Path3D/PathFollow3D"]
+script = ExtResource("3_rhr83")
+
+[node name="Sailboat" parent="Path3D/PathFollow3D" instance=ExtResource("1_ok0rg")]
+
+[node name="CameraAnchor" type="Node3D" parent="Path3D/PathFollow3D/Sailboat"]
+transform = Transform3D(1, 0, 2.98023e-08, 0, 1, 0, -2.98023e-08, 0, 1, 0, 4.89235, 0)
+script = ExtResource("2_it3md")
+
+[node name="Camera3D" type="Camera3D" parent="Path3D/PathFollow3D"]
+transform = Transform3D(-0.950771, -0.294633, 0.0960734, -8.31157e-08, 0.310013, 0.950733, -0.309901, 0.903927, -0.294751, 0, 0, 0)
+fov = 115.1
