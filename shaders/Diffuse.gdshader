@@ -1,4 +1,5 @@
 shader_type canvas_item;
+render_mode blend_disabled;
 
 uniform highp sampler2D source_texture;
 uniform highp vec2 texelSize;

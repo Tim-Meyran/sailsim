@@ -3,6 +3,8 @@ extends MeshInstance3D
 
 @export_tool_button("update","Callable") var btn = setup
 
+@export_tool_button("clear","Callable") var btn2 = clear
+
 @export
 var resolution = Vector2i(256,256)
 
@@ -12,6 +14,10 @@ var velocityTexture : Texture
 @export
 var testTexture : Texture
 
+func clear():
+	for child in get_children():
+		remove_child(child)
+		
 func setup():
 	for child in get_children():
 		remove_child(child)

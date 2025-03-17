@@ -1,4 +1,6 @@
 shader_type canvas_item;
+render_mode blend_disabled;
+
 uniform highp sampler2D source_texture;
 
 const vec2 vL = vec2(0.1,0.1);

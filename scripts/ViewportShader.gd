@@ -12,6 +12,15 @@ func _init(size:Vector2i,shader:Shader):
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	viewport.set_default_canvas_item_texture_filter(Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_LINEAR)	
 	viewport.disable_3d = true
+	viewport.use_hdr_2d = true
+	viewport.fsr_sharpness = 0.0
+	viewport.anisotropic_filtering_level = 0
+	
+	#var vt = viewport.get_texture();
+	#var image = Image.create_empty(size.x,size.y,false,Image.FORMAT_RGBAF)
+	#var texture = ImageTexture.create_from_image(image)
+	#RenderingServer.texture_replace(vt.get_rid(),texture)
+	
 	add_child(viewport)
 	
 	#sprite = Sprite2D.new()
@@ -27,4 +36,7 @@ func _init(size:Vector2i,shader:Shader):
 	
 	shader_material = ShaderMaterial.new()
 	shader_material.shader = shader
+	
 	quad.material = shader_material
+	
+	

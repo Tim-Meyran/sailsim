@@ -1,4 +1,5 @@
 shader_type canvas_item;
+render_mode blend_disabled;
 
 uniform highp vec2 texelSize;
 uniform highp vec2 dyeTexelSize;

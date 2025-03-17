@@ -15,11 +15,18 @@ run/main_scene="uid://b6hnue66gbear"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[display]
+
+window/handheld/orientation=1
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
 
 [rendering]
 
+textures/canvas_textures/default_texture_repeat=2
 renderer/rendering_method="mobile"
+renderer/rendering_method.web="mobile"
 textures/vram_compression/import_etc2_astc=true
+viewport/hdr_2d=true

@@ -1,4 +1,5 @@
 shader_type canvas_item;
+render_mode blend_disabled;
 
 varying highp vec2 vL;
 varying highp vec2 vR;

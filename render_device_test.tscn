@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dkyl3k6duhomc"]
+
+[ext_resource type="Script" uid="uid://dmn78oyleuwmk" path="res://render_device_test.gd" id="1_bycen"]
+
+[node name="RenderDeviceTest" type="Node3D"]
+script = ExtResource("1_bycen")

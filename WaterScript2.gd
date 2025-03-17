@@ -3,17 +3,19 @@ extends MeshInstance3D
 
 @export_tool_button("update","Callable") var btn = update
 
-@export
-var resolution : Vector2i = Vector2i(256,256)
+@export_tool_button("clear","Callable") var btn2 = clear
 
 @export
-var velocityTexture : Texture
+var resolution : Vector2i = Vector2i(256,256)
 
 @export
 var pressureTexture : Texture
 
 @export
 var testTexture : Texture
+
+@export
+var divergence1Texture : Texture
 
 @export
 var velocity1Texture : Texture
@@ -46,11 +48,18 @@ var texelSize :Vector2  = Vector2(1,1)
 var dyeTexelSize :Vector2  = Vector2(1,1)
 
 func _ready():
-	setup()
+	#setup()
 	set_process(true)
+	for child in get_children():
+		remove_child(child)
 	
 func update():
 	setup()
+
+func clear():
+	for child in get_children():
+		remove_child(child)
+		
 
 func setup():
 	for child in get_children():
@@ -58,59 +67,63 @@ func setup():
 		
 	var mat = get_surface_override_material(0) as StandardMaterial3D
 	
+	var viewportShaders = []
 	#texelSize = Vector2(1.0 / resolution.x,1.0 / resolution.y)
 	#dyeTexelSize = texelSize
+		
+	var velocity0 := ViewportShader.new(resolution,load("res://shaders/Splat.gdshader"))
+	viewportShaders.append(velocity0)
 	
-	var image = Image.create(resolution.x,resolution.y,false,Image.FORMAT_RGBAF)
-	image.fill_rect(Rect2i(50,50,100,100),Color.BLUE)
-	velocityTexture = ImageTexture.create_from_image(image)
+	var dye0 := ViewportShader.new(resolution,load("res://shaders/Splat.gdshader"))
+	viewportShaders.append(dye0)
 	
 	var velocity1 := ViewportShader.new(resolution,load("res://shaders/Blink.gdshader"))
-	add_child(velocity1)
-	
+	viewportShaders.append(velocity1)
+
 	var dye1 := ViewportShader.new(resolution,load("res://shaders/Dye.gdshader"))
-	add_child(dye1)
+	viewportShaders.append(dye1)
 	
 	var uCurl1 := ViewportShader.new(resolution,load("res://shaders/Curl.gdshader"))
-	add_child(uCurl1)
-		
+	viewportShaders.append(uCurl1)
+	
 	var velocity2 := ViewportShader.new(resolution,load("res://shaders/VorticityShader.gdshader"))
-	add_child(velocity2)
+	viewportShaders.append(velocity2)
 	
 	var divergence1 := ViewportShader.new(resolution,load("res://shaders/DivergenceShader.gdshader"))
-	add_child(divergence1)
-
+	viewportShaders.append(divergence1)
+	
 	var pressure1 := ViewportShader.new(resolution,load("res://shaders/ClearShader.gdshader"))
-	add_child(pressure1)
+	viewportShaders.append(pressure1)
 	
-	var pressure2I = pressure1
-	
-	for i in range(0,50):
+	var pressureFilters = []
+	for i in range(0,20):
 		var p = ViewportShader.new(resolution,load("res://shaders/PressureShader.gdshader"))
-		p.shader_material.set_shader_parameter("uPressure",pressure2I.viewport.get_texture())
-		p.shader_material.set_shader_parameter("uDivergence",divergence1.viewport.get_texture())
-		p.shader_material.set_shader_parameter("texelSize",texelSize)
-		p.shader_material.set_shader_parameter("dyeTexelSize",dyeTexelSize)
-		p.shader_material.set_shader_parameter("dt", dt)
-		p.shader_material.set_shader_parameter("dissipation",dissipation)
-		add_child(p)
-		pressure2I = p
+		viewportShaders.append(p)
+		pressureFilters.append(p)
 	
 	var velocity3 := ViewportShader.new(resolution,load("res://shaders/GradientSubtractShader.gdshader"))
-	add_child(velocity3)
+	viewportShaders.append(velocity3)
 	
 	var velocity4 := ViewportShader.new(resolution,load("res://shaders/Advect.gdshader"))
-	add_child(velocity4)
+	viewportShaders.append(velocity4)
 	
 	var dye2 := ViewportShader.new(resolution,load("res://shaders/Advect.gdshader"))
-	add_child(dye2)
+	viewportShaders.append(dye2)
 	
 	var displayShader := ViewportShader.new(resolution,load("res://shaders/DisplayShader.gdshader"))
-	add_child(displayShader)
+	viewportShaders.append(displayShader)
 	
-	velocity1.shader_material.set_shader_parameter("uSource",velocity4.viewport.get_texture())
+	#viewportShaders.reverse()
+	for vpShader in viewportShaders:
+		add_child(vpShader)
+		await RenderingServer.frame_post_draw
+		
+	velocity0.shader_material.set_shader_parameter("uTarget",velocity4.viewport.get_texture())
+	dye0.shader_material.set_shader_parameter("uTarget",dye2.viewport.get_texture())
 	
-	dye1.shader_material.set_shader_parameter("uSource",dye2.viewport.get_texture())
+	velocity1.shader_material.set_shader_parameter("uSource",velocity0.viewport.get_texture())
+	
+	dye1.shader_material.set_shader_parameter("uSource",dye0.viewport.get_texture())
 	
 	uCurl1.shader_material.set_shader_parameter("uVelocity",velocity1.viewport.get_texture())
 	uCurl1.shader_material.set_shader_parameter("texelSize",texelSize)
@@ -124,8 +137,19 @@ func setup():
 	divergence1.shader_material.set_shader_parameter("uVelocity",velocity2.viewport.get_texture())
 	divergence1.shader_material.set_shader_parameter("texelSize",texelSize)
 	
-	pressure1.shader_material.set_shader_parameter("uTexture",pressure2I.viewport.get_texture())
 	pressure1.shader_material.set_shader_parameter("value",pressure)
+	
+	var pressure2I = pressure1
+	for p in pressureFilters:
+		p.shader_material.set_shader_parameter("uPressure",pressure2I.viewport.get_texture())
+		p.shader_material.set_shader_parameter("uDivergence",divergence1.viewport.get_texture())
+		p.shader_material.set_shader_parameter("texelSize",texelSize)
+		p.shader_material.set_shader_parameter("dyeTexelSize",dyeTexelSize)
+		p.shader_material.set_shader_parameter("dt", dt)
+		p.shader_material.set_shader_parameter("dissipation",dissipation)
+		pressure2I = p
+	
+	pressure1.shader_material.set_shader_parameter("uTexture",pressure2I.viewport.get_texture())
 	
 	velocity3.shader_material.set_shader_parameter("uPressure",pressure2I.viewport.get_texture())
 	velocity3.shader_material.set_shader_parameter("uVelocity",velocity2.viewport.get_texture())
@@ -151,10 +175,12 @@ func setup():
 	displayShader.shader_material.set_shader_parameter("texelSize", texelSize)
 	displayShader.shader_material.set_shader_parameter("uTexture", dye2.viewport.get_texture())
 	
+	divergence1Texture = divergence1.viewport.get_texture()
+	
 	velocity1Texture = velocity1.viewport.get_texture()
 	velocity2Texture = velocity2.viewport.get_texture()
 	velocity3Texture = velocity3.viewport.get_texture()
 	velocity4Texture = velocity4.viewport.get_texture()
 	pressureTexture = pressure2I.viewport.get_texture()
 	
-	mat.albedo_texture = displayShader.viewport.get_texture()
+	mat.albedo_texture = dye2.viewport.get_texture()

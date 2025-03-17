@@ -1,4 +1,5 @@
 shader_type canvas_item;
+render_mode blend_disabled;
 
 uniform sampler2D uSource;
 
@@ -6,8 +7,8 @@ void vertex() {
 }
 
 void fragment() {
-	float x = 0.5 + 0.2 * sin(TIME);
-	float y = 0.5 + 0.2 * cos(TIME);
+	float x = 0.5 + 0.2 ;//* sin(TIME);
+	float y = 0.5 + 0.2 ;//* cos(TIME);
 		
 	float width = 50.0f;
 	float height = 50.0f;
