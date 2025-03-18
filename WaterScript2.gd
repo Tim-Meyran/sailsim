@@ -47,6 +47,9 @@ var texelSize :Vector2  = Vector2(1,1)
 @export
 var dyeTexelSize :Vector2  = Vector2(1,1)
 
+@export
+var velocity0 : ViewportShader
+
 func _ready():
 	#setup()
 	set_process(true)
@@ -59,7 +62,10 @@ func update():
 func clear():
 	for child in get_children():
 		remove_child(child)
-		
+
+func _init() -> void:
+	if not Engine.is_editor_hint():
+		setup()
 
 func setup():
 	for child in get_children():
@@ -71,7 +77,7 @@ func setup():
 	#texelSize = Vector2(1.0 / resolution.x,1.0 / resolution.y)
 	#dyeTexelSize = texelSize
 		
-	var velocity0 := ViewportShader.new(resolution,load("res://shaders/Splat.gdshader"))
+	velocity0 = ViewportShader.new(resolution,load("res://shaders/Splat.gdshader"))
 	viewportShaders.append(velocity0)
 	
 	var dye0 := ViewportShader.new(resolution,load("res://shaders/Splat.gdshader"))
@@ -118,6 +124,9 @@ func setup():
 		add_child(vpShader)
 		await RenderingServer.frame_post_draw
 		
+	velocity0.shader_material.set_shader_parameter("color", Vector3.ZERO)
+	velocity0.shader_material.set_shader_parameter("point", Vector3.ZERO)
+	velocity0.shader_material.set_shader_parameter("radius",0.0)
 	velocity0.shader_material.set_shader_parameter("uTarget",velocity4.viewport.get_texture())
 	dye0.shader_material.set_shader_parameter("uTarget",dye2.viewport.get_texture())
 	
@@ -183,4 +192,15 @@ func setup():
 	velocity4Texture = velocity4.viewport.get_texture()
 	pressureTexture = pressure2I.viewport.get_texture()
 	
-	mat.albedo_texture = dye2.viewport.get_texture()
+	mat.albedo_texture = displayShader.viewport.get_texture()
+	
+func _process(delta: float) -> void:
+	return 
+	var x = cos(Time.get_ticks_msec() / 1000)
+	var y = sin(Time.get_ticks_msec() / 1000)
+	
+	velocity0.shader_material.set_shader_parameter("color", Vector3(10.0*x,10.0*y,0.0))
+	velocity0.shader_material.set_shader_parameter("point", Vector3(0.5,0.5,0.0))
+	velocity0.shader_material.set_shader_parameter("radius",0.25)
+	
+		

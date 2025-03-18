@@ -3,7 +3,6 @@
 [ext_resource type="PackedScene" uid="uid://begqadjnhtuyn" path="res://Sailboat.tscn" id="1_ok0rg"]
 [ext_resource type="Script" uid="uid://bgy7edxw4xi4q" path="res://path_follow_3d.gd" id="2_dnb4d"]
 [ext_resource type="Script" uid="uid://dsf6w1p5kqill" path="res://camera_anchor.gd" id="2_it3md"]
-[ext_resource type="Script" uid="uid://d1capasuw3lus" path="res://wiggle.gd" id="3_rhr83"]
 [ext_resource type="PackedScene" uid="uid://cow4upueaue7e" path="res://Water.tscn" id="5_3wfbp"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_it3md"]
@@ -19,6 +18,37 @@ _data = {
 "tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0)
 }
 point_count = 9
+
+[sub_resource type="GDScript" id="GDScript_rhr83"]
+script/source = "extends Node3D  # Für 3D-Objekte wie MeshInstance3D, Node3D, etc.
+
+@export var wave_height: float = 1.0  # Höhe der Wellenbewegung
+@export var wave_speed: float = 1.0   # Geschwindigkeit der Wellen
+@export var tilt_amplitude: float = 5.0  # Neigungswinkel (in Grad)
+@export var tilt_speed: float = 0.5   # Geschwindigkeit der Neigung
+
+@onready
+var obj = $\"../Sailboat\"
+
+var original_position: Vector3
+var original_rotation: Vector3
+var time_passed: float = 0.0  # Zeit-Tracker
+
+func _process(delta: float) -> void:
+	time_passed += delta
+
+	# Vertikale Wellenbewegung (sanftes Auf und Ab)
+	var wave_offset = sin(time_passed * wave_speed) * wave_height
+
+	# Neigung (leichtes Kippen um X und Z für ein realistisches Wellengefühl)
+	var tilt_x = sin(time_passed * tilt_speed) * tilt_amplitude
+	var tilt_z = cos(time_passed * tilt_speed) * tilt_amplitude
+
+	# Position und Rotation anwenden
+	obj.position.y = position.y + wave_offset
+	obj.rotation_degrees.x = rotation.x + tilt_x
+	obj.rotation_degrees.z = rotation.z + tilt_z
+"
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rhr83"]
 
@@ -54,7 +84,7 @@ script = ExtResource("2_dnb4d")
 speed = 1.0
 
 [node name="wiggle" type="Node3D" parent="Path3D/PathFollow3D"]
-script = ExtResource("3_rhr83")
+script = SubResource("GDScript_rhr83")
 
 [node name="Sailboat" parent="Path3D/PathFollow3D" instance=ExtResource("1_ok0rg")]
 

@@ -13,6 +13,23 @@ uniform highp sampler2D uDithering;*/
 uniform highp vec2 ditherScale;
 uniform highp vec2 texelSize;
 
+uniform mediump float min_val;
+uniform mediump float max_val;
+
+vec4 map_value(vec4 v) {
+    float x = clamp((v.x - min_val) / (max_val - min_val), 0.0, 1.0);
+	float y = clamp((v.y - min_val) / (max_val - min_val), 0.0, 1.0);
+	float z = clamp((v.z - min_val) / (max_val - min_val), 0.0, 1.0);
+	return vec4(x,y,z,v.a);
+}
+vec4 textureScale(sampler2D tex,vec2 uv_coords) {
+    vec4 tex_value = texture(tex, uv_coords);
+    float x =  mix(min_val, max_val, tex_value.x);
+	float y =  mix(min_val, max_val, tex_value.y); 
+	float z =  mix(min_val, max_val, tex_value.z); 
+	return vec4(x,y,z,tex_value.a);
+}
+
 vec3 linearToGamma (vec3 color) {
     color = max(color, vec3(0));
     return max(1.055 * pow(color, vec3(0.416666667)) - 0.055, vec3(0));
@@ -26,14 +43,14 @@ void vertex(){
 }
 
 void fragment() {
-	vec3 c = texture(uTexture, UV).rgb;
+	vec3 c = textureScale(uTexture, UV).rgb;
 
 	#define SHADING
 	#ifdef SHADING
-	    vec3 lc = texture(uTexture, vL).rgb;
-	    vec3 rc = texture(uTexture, vR).rgb;
-	    vec3 tc = texture(uTexture, vT).rgb;
-	    vec3 bc = texture(uTexture, vB).rgb;
+	    vec3 lc = textureScale(uTexture, vL).rgb;
+	    vec3 rc = textureScale(uTexture, vR).rgb;
+	    vec3 tc = textureScale(uTexture, vT).rgb;
+	    vec3 bc = textureScale(uTexture, vB).rgb;
 
 	    float dx = length(rc) - length(lc);
 	    float dy = length(tc) - length(bc);
@@ -67,5 +84,7 @@ void fragment() {
 	
 	float a = max(c.r, max(c.g, c.b));
 	COLOR = vec4(c, a);
+	
+	COLOR = vec4(abs(c), 1.0f);
 
 }
