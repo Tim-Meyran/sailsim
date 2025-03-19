@@ -7,4 +7,4 @@ func _process(delta: float) -> void:
 	progress += speed * delta
 	#if(progress > 1.0):
 	#	progress = 0.0
-	print(progress)
+	#print(progress)

@@ -41,7 +41,7 @@ void fragment() {
 	float y = 0.5 + 0.5 * sin(TIME*1.0);
 	
 	if(x - 0.1 < UV.x && x + 0.1 > UV.x  && y - 0.1 < UV.y && y + 0.1 > UV.y  ){
-		//COLOR = vec4(1.0,0.8,0.0,1.0);
+		COLOR = vec4(1.0,0.8,0.0,1.0);
 	}
 	if(clear < 0.5){
 		COLOR = vec4(0.5,0.5,0.5,1.0);

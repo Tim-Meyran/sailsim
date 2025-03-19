@@ -33,7 +33,10 @@ var velocity3Texture : Texture
 var velocity4Texture : Texture
 
 @export_range(0,4)
-var dissipation : float = 0.2
+var dissipation : float = 0.1
+
+@export_range(0,4)
+var dissipationDye : float = 0.2
 
 @export_range(0,50)
 var curl : float = 30
@@ -56,6 +59,9 @@ var pressure1 : ViewportShader
 
 var dye1 : ViewportShader
 
+var velocity4 : ViewportShader
+var dye2 : ViewportShader
+
 var viewportShaders = []
 
 func _ready():
@@ -64,6 +70,9 @@ func _ready():
 	for child in get_children():
 		remove_child(child)
 	
+	if not Engine.is_editor_hint():
+		update()
+	
 func update():
 	setup()
 
@@ -71,11 +80,12 @@ func clear():
 	for child in get_children():
 		remove_child(child)
 
-func _init() -> void:
-	if not Engine.is_editor_hint():
-		setup()
+#func _init() -> void:
+#	if not Engine.is_editor_hint():
+#		setup()
 
 func setup():
+	print("Setup fluid shader")
 	for child in get_children():
 		remove_child(child)
 		
@@ -83,7 +93,7 @@ func setup():
 	texelSize = Vector2(1.0 / resolution.x, 1.0 / resolution.y)
 	dyeTexelSize = texelSize
 	
-	dye1 = ViewportShader.new(resolution,load("res://shaders/SplatDye.gdshader"))
+	dye1 = ViewportShader.new(resolution,load("res://shaders/Splat.gdshader"))
 	viewportShaders.append(dye1)
 		
 	velocity1 = ViewportShader.new(resolution,load("res://shaders/Splat.gdshader"))
@@ -108,7 +118,7 @@ func setup():
 	viewportShaders.append(pressure1)
 		
 	var pressure2I = pressure1
-	for i in range(0,5): #20
+	for i in range(0,20): #20
 		var p = ViewportShader.new(resolution,load("res://shaders/PressureShader.gdshader"))
 		p.setShaderRef("uPressure",pressure2I)
 		p.setShaderRef("uDivergence",divergence1)
@@ -122,13 +132,13 @@ func setup():
 	velocity3.setShaderRef("uVelocity",velocity2)
 	viewportShaders.append(velocity3)
 	
-	var velocity4 := ViewportShader.new(resolution,load("res://shaders/Advect.gdshader"))
+	velocity4 = ViewportShader.new(resolution,load("res://shaders/Advect.gdshader"))
 	velocity4.setShaderRef("uVelocity",velocity3)
 	velocity4.setShaderRef("uSource",velocity3)
 	viewportShaders.append(velocity4)
 	velocity1.setShaderRef("uTarget",velocity4)
 	
-	var dye2 := ViewportShader.new(resolution,load("res://shaders/Advect.gdshader"))
+	dye2 = ViewportShader.new(resolution,load("res://shaders/Advect.gdshader"))
 	dye2.setShaderRef("uSource",dye1)
 	dye2.setShaderRef("uVelocity",velocity4)
 	viewportShaders.append(dye2)
@@ -157,31 +167,51 @@ func setup():
 	self.dye1.shader_material.set_shader_parameter("radius",0.5)
 	
 	var mat = get_surface_override_material(0) as StandardMaterial3D
-	mat.albedo_texture = dye1.viewport.get_texture()
+	#mat.albedo_texture = displayShader.viewport.get_texture()
+	mat.albedo_texture = velocity4.viewport.get_texture()
+	#mat.heightmap_texture = pressure2I.viewport.get_texture()
 	
+	print("Setup fluid shader done!")
+	
+var splatIndex = 0
 func _process(delta: float) -> void:
 	if not velocity1: return
+	
+	var splats = [Vector2(0.25,0.5),Vector2(0.75,0.5)]
 	
 	var x = cos(2.0*Time.get_ticks_msec() / 1000.0)
 	var y = sin(2.0*Time.get_ticks_msec() / 1000.0)
 	
-	var h = Time.get_ticks_msec() / 1000
-	
-	var color = Color.from_hsv(h,1.0,1.0);
-	print(color)
-	var pos = Vector3(-x * 0.05 + 0.5,-y * 0.05 + 0.5,0.0)
-	var dir = Vector3(x,y,0.0) 
+	var h:int = Time.get_ticks_msec() / 10
+	h = h % 1000
+	var color = Color.from_hsv(h/1000.0,1.0,0.1);
+	#print(color)
+	var pos = splats[splatIndex] # Vector3(-x * 0.05 + 0.5,-y * 0.05 + 0.5,0.0)
+	var dir = Vector3(-1,0,0.0) 
+	if(splatIndex == 0):
+		dir = -dir
+		#color = Color(1.0,0.0,0.0)
+	else:
+		color = Color(0.0,0.0,1.0)
 	var radius = 0.5
+	
+	#pos.x = randf()
+	#pos.y = randf()
+	
+	splatIndex += 1
+	if splatIndex >= splats.size(): splatIndex = 0
 	
 	for vps in self.viewportShaders:
 		vps.shader_material.set_shader_parameter("texelSize",texelSize)
 		vps.shader_material.set_shader_parameter("dyeTexelSize",dyeTexelSize)
 		vps.shader_material.set_shader_parameter("dt",dt)
-		vps.shader_material.set_shader_parameter("dissipation",dissipation)
+
+	velocity4.shader_material.set_shader_parameter("dissipation",dissipation)
+	dye2.shader_material.set_shader_parameter("dissipation",dissipationDye)
 	
-	velocity1.shader_material.set_shader_parameter("color", dir * 300.0)
+	velocity1.shader_material.set_shader_parameter("color", dir * 50.0)
 	velocity1.shader_material.set_shader_parameter("point", pos)
-	velocity1.shader_material.set_shader_parameter("radius",0.25 / 100.0)
+	velocity1.shader_material.set_shader_parameter("radius",radius / 100.0)
 	dye1.shader_material.set_shader_parameter("color", Vector3(color.r,color.g,color.b))
 	dye1.shader_material.set_shader_parameter("point", pos)
 	dye1.shader_material.set_shader_parameter("radius",radius / 100.0)

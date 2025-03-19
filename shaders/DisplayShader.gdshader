@@ -85,6 +85,5 @@ void fragment() {
 	float a = max(c.r, max(c.g, c.b));
 	COLOR = vec4(c, a);
 	
-	COLOR = vec4(abs(c), 1.0f);
-
+	//COLOR = vec4(1.0, 0.0, 0.0, 1.0);
 }

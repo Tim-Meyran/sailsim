@@ -81,10 +81,11 @@ transform = Transform3D(-0.950767, 0, -0.3099, 0, 1, 0, 0.3099, 0, -0.950768, -1
 progress = 20.0
 use_model_front = true
 script = ExtResource("2_dnb4d")
-speed = 1.0
+speed = 0.2
 
 [node name="wiggle" type="Node3D" parent="Path3D/PathFollow3D"]
 script = SubResource("GDScript_rhr83")
+wave_height = 0.2
 
 [node name="Sailboat" parent="Path3D/PathFollow3D" instance=ExtResource("1_ok0rg")]
 
@@ -98,4 +99,3 @@ transform = Transform3D(1, 0, 2.98023e-08, 0, 1, 0, -2.98023e-08, 0, 1, -1.22036
 script = ExtResource("2_it3md")
 
 [node name="Water" parent="." instance=ExtResource("5_3wfbp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.27171, 0)

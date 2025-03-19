@@ -53,6 +53,7 @@ func _init(size:Vector2i,shader:Shader):
 	
 	shader_material = ShaderMaterial.new()
 	shader_material.shader = shader
+	
 	shader_material.set_shader_parameter("min_val", -500)
 	shader_material.set_shader_parameter("max_val", 500)
 	shader_material.set_shader_parameter("texelSize",Vector2(1,1))

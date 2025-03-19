@@ -27,6 +27,5 @@ window/handheld/orientation=1
 
 textures/canvas_textures/default_texture_repeat=2
 renderer/rendering_method="mobile"
-renderer/rendering_method.web="mobile"
 textures/vram_compression/import_etc2_astc=true
 viewport/hdr_2d=true

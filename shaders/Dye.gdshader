@@ -34,7 +34,7 @@ void fragment() {
 		0.5f + 0.5f*sin(2.0f*TIME),
 		0.5f + 0.5f*cos(2.0f*TIME));
 
-	COLOR = texture(uSource, UV);	
+	COLOR = textureScale(uSource, UV);	
 	if(distance(vec2(x,y),UV) < 0.05f){
 		COLOR = map_value(vec4(dir.x,dir.y,0.0,1.0));
 	}
