@@ -6,7 +6,13 @@ extends MeshInstance3D
 @export_tool_button("clear","Callable") var btn2 = clear
 
 @export
-var clearValues : bool 
+var clearValues : bool = true
+
+@export
+var image : Image 
+
+@export
+var texture : ImageTexture 
 
 @export
 var resolution : Vector2i = Vector2i(256,256)
@@ -15,7 +21,7 @@ var resolution : Vector2i = Vector2i(256,256)
 var pressureTexture : Texture
 
 @export
-var testTexture : Texture
+var velocity4Image : Image
 
 @export
 var divergence1Texture : Texture
@@ -53,6 +59,7 @@ var texelSize :Vector2  = Vector2(1,1)
 @export
 var dyeTexelSize :Vector2  = Vector2(1,1)
 
+var velocity0 : ViewportShader
 var velocity1 : ViewportShader
 
 var pressure1 : ViewportShader
@@ -88,15 +95,31 @@ func setup():
 	print("Setup fluid shader")
 	for child in get_children():
 		remove_child(child)
-		
+	
+	clearValues = true	
 	viewportShaders.clear()
 	texelSize = Vector2(1.0 / resolution.x, 1.0 / resolution.y)
 	dyeTexelSize = texelSize
 	
 	dye1 = ViewportShader.new(resolution,load("res://shaders/Splat.gdshader"))
 	viewportShaders.append(dye1)
-		
+
+	image = Image.load_from_file("res://Map-Photoroom.png")
+	#image = Image.create(resolution.x, resolution.y, false, Image.FORMAT_RGBA8)
+	#image.fill(Color(0.5, 0.5, 0.0, 1.0)) # Optional: Transparent ausfüllen
+	#image.fill_rect(Rect2i(10,10,resolution.x -20,resolution.y -20),Color(0.5, 0.5, 0.0, 0.0))
+	
+	#image.fill_rect(Rect2i(200,200,150,150),Color(0.6, 0.6, 0.0, 1.0))
+	
+	texture = ImageTexture.create_from_image(image)
+	await RenderingServer.frame_post_draw
+	
+	velocity0 = ViewportShader.new(resolution,load("res://shaders/VelocityMaskShader.gdshader"))
+	velocity0.setShaderValue("uSource1",texture)
+	viewportShaders.append(velocity0)
+			
 	velocity1 = ViewportShader.new(resolution,load("res://shaders/Splat.gdshader"))
+	velocity1.setShaderRef("uTarget",velocity0)
 	viewportShaders.append(velocity1)
 	
 	var uCurl1 := ViewportShader.new(resolution,load("res://shaders/Curl.gdshader"))
@@ -136,8 +159,9 @@ func setup():
 	velocity4.setShaderRef("uVelocity",velocity3)
 	velocity4.setShaderRef("uSource",velocity3)
 	viewportShaders.append(velocity4)
-	velocity1.setShaderRef("uTarget",velocity4)
-	
+	velocity0.setShaderRef("uSource2",velocity4)
+	#velocity1.setShaderRef("uTarget",velocity4)
+
 	dye2 = ViewportShader.new(resolution,load("res://shaders/Advect.gdshader"))
 	dye2.setShaderRef("uSource",dye1)
 	dye2.setShaderRef("uVelocity",velocity4)
@@ -168,14 +192,21 @@ func setup():
 	
 	var mat = get_surface_override_material(0) as StandardMaterial3D
 	#mat.albedo_texture = displayShader.viewport.get_texture()
-	mat.albedo_texture = velocity4.viewport.get_texture()
+	mat.albedo_texture = velocity0.viewport.get_texture()
 	#mat.heightmap_texture = pressure2I.viewport.get_texture()
 	
 	print("Setup fluid shader done!")
+	await RenderingServer.frame_post_draw
+	await get_tree().create_timer(2.0).timeout
+	clearValues = false
 	
 var splatIndex = 0
 func _process(delta: float) -> void:
 	if not velocity1: return
+	
+	#clearValues = false
+	
+	velocity4Image = velocity4.viewport.get_texture().get_image()
 	
 	var splats = [Vector2(0.25,0.5),Vector2(0.75,0.5)]
 	
@@ -209,13 +240,25 @@ func _process(delta: float) -> void:
 	velocity4.shader_material.set_shader_parameter("dissipation",dissipation)
 	dye2.shader_material.set_shader_parameter("dissipation",dissipationDye)
 	
-	velocity1.shader_material.set_shader_parameter("color", dir * 50.0)
+	velocity1.shader_material.set_shader_parameter("color", dir * 00.0)
 	velocity1.shader_material.set_shader_parameter("point", pos)
 	velocity1.shader_material.set_shader_parameter("radius",radius / 100.0)
 	dye1.shader_material.set_shader_parameter("color", Vector3(color.r,color.g,color.b))
 	dye1.shader_material.set_shader_parameter("point", pos)
 	dye1.shader_material.set_shader_parameter("radius",radius / 100.0)
-
+	
+	#image.fill(Color(0.5,0.5,0.5,0.0))
+	#image.fill_rect(Rect2i(10,10,resolution.x -20,resolution.y -20),Color(0.5, 0.5, 0.0, 0.0))
+	#image.fill_rect(Rect2i(512 ,250,50,50),Color(0.5, 0.8, 0.0, 1.0))
+	#image.fill_rect(Rect2i(512 ,750,50,50),Color(0.5, 0.2, 0.0, 1.0))
+	
+	#image = preload("res://Map-Photoroom.png")
+	
+	#image.fill_rect(Rect2i(0.5 + 0.5 * x *resolution.x,0.5 + 0.5 * y*resolution.y,50,50),Color(0.7, 0.8, 0.0, 1.0))
+	texture.update(image)  
+	image.fill_rect(Rect2i(0,00,30,resolution.y),Color(1.0, 0.5, 0.0, 1.0))
+	image.fill_rect(Rect2i(resolution.x - 30,00,30,resolution.y),Color(0.0, 0.5, 0.0, 1.0))	
+	
 	if clearValues : 
 		pressure1.shader_material.set_shader_parameter("value",0.0)
 		velocity1.shader_material.set_shader_parameter("clear",0.0)

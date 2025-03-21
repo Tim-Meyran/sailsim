@@ -31,21 +31,8 @@ func _init(size:Vector2i,shader:Shader):
 	#viewport.fsr_sharpness = 0.0
 	viewport.anisotropic_filtering_level = 0
 	
-
-	
-	#var vt = viewport.get_texture();
-	#var image = Image.create_empty(size.x,size.y,false,Image.FORMAT_RGBAF)
-	#var texture = ImageTexture.create_from_image(image)
-	#RenderingServer.texture_replace(vt.get_rid(),texture)
-	
 	add_child(viewport)
-	
-	#sprite = Sprite2D.new()
-	#sprite.centered = false
-	#sprite.texture = source_texture
-	#sprite.scale = Vector2(1,1)
-	#viewport.add_child(sprite)
-	
+		
 	var quad := ColorRect.new()
 	quad.color = Color.BISQUE
 	quad.size = size
@@ -61,5 +48,3 @@ func _init(size:Vector2i,shader:Shader):
 	shader_material.set_shader_parameter("dt",0.1)
 	
 	quad.material = shader_material
-	
-	
