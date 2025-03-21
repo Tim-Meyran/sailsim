@@ -4,7 +4,7 @@ extends Node3D
 var water = %FluidSimPlane
 
 @onready
-var rect = $"../Window/TextureRect"
+var rect = %TextureWindowRect #$"../Window/TextureRect"
 
 var velicity = Vector3.ZERO
 
