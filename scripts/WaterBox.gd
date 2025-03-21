@@ -11,6 +11,9 @@ var velicity = Vector3.ZERO
 @onready
 var arrow:MeshInstance3D = $ArrowMeshInstance
 
+@onready
+var obstacleViewPort :SubViewport = %ObstacleViewPort
+
 func _physics_process(delta: float) -> void:
 	var uv = Vector2(water.resolution) * Vector2(0.5 + 0.5 * position.x / 50.0,0.5 + 0.5 * position.z / 50.0)
 	
@@ -21,7 +24,9 @@ func _physics_process(delta: float) -> void:
 		var vt :ViewportTexture = water.velocity0.viewport.get_texture()
 		var waterImage : Image = vt.get_image()
 		var col = waterImage.get_pixel(uv.x,uv.y)
-		rect.texture = vt
+		#rect.texture = vt
+		if obstacleViewPort:
+			rect.texture = obstacleViewPort.get_texture()
 		
 		velicity.x = - 1.0 + 2.0 * col.r 
 		velicity.z = - 1.0 + 2.0 * col.g
