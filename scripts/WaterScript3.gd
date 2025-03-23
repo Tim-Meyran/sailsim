@@ -8,6 +8,9 @@ extends MeshInstance3D
 @export
 var clearValues : bool = true
 
+@onready 
+var obstacleViewport : SubViewport = %ObstacleViewPort
+
 @export
 var image : Image 
 
@@ -104,18 +107,18 @@ func setup():
 	dye1 = ViewportShader.new(resolution,load("res://shaders/Splat.gdshader"))
 	viewportShaders.append(dye1)
 
-	image = Image.load_from_file("res://Map-Photoroom.png")
-	#image = Image.create(resolution.x, resolution.y, false, Image.FORMAT_RGBA8)
+	#image = Image.load_from_file("res://Map-Photoroom.png")
+	image = Image.create(resolution.x, resolution.y, false, Image.FORMAT_RGBA8)
 	#image.fill(Color(0.5, 0.5, 0.0, 1.0)) # Optional: Transparent ausfüllen
 	#image.fill_rect(Rect2i(10,10,resolution.x -20,resolution.y -20),Color(0.5, 0.5, 0.0, 0.0))
 	
 	#image.fill_rect(Rect2i(200,200,150,150),Color(0.6, 0.6, 0.0, 1.0))
 	
-	texture = ImageTexture.create_from_image(image)
+	#texture = ImageTexture.create_from_image(image)
 	await RenderingServer.frame_post_draw
 	
 	velocity0 = ViewportShader.new(resolution,load("res://shaders/VelocityMaskShader.gdshader"))
-	velocity0.setShaderValue("uSource1",texture)
+	velocity0.setShaderValue("uSource1",obstacleViewport.get_texture())
 	viewportShaders.append(velocity0)
 			
 	velocity1 = ViewportShader.new(resolution,load("res://shaders/Splat.gdshader"))
@@ -255,9 +258,9 @@ func _process(delta: float) -> void:
 	#image = preload("res://Map-Photoroom.png")
 	
 	#image.fill_rect(Rect2i(0.5 + 0.5 * x *resolution.x,0.5 + 0.5 * y*resolution.y,50,50),Color(0.7, 0.8, 0.0, 1.0))
-	texture.update(image)  
-	image.fill_rect(Rect2i(0,00,30,resolution.y),Color(1.0, 0.5, 0.0, 1.0))
-	image.fill_rect(Rect2i(resolution.x - 30,00,30,resolution.y),Color(0.0, 0.5, 0.0, 1.0))	
+	#texture.update(image)  
+	#image.fill_rect(Rect2i(0,00,30,resolution.y),Color(1.0, 0.5, 0.0, 1.0))
+	#image.fill_rect(Rect2i(resolution.x - 30,00,30,resolution.y),Color(0.0, 0.5, 0.0, 1.0))	
 	
 	if clearValues : 
 		pressure1.shader_material.set_shader_parameter("value",0.0)

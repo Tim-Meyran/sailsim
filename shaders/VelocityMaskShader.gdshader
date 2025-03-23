@@ -22,10 +22,10 @@ vec4 textureScale(sampler2D tex,vec2 uv_coords) {
 }
 
 void fragment () {
-  	vec4 val1 = texture(uSource1,UV);
+  	vec4 val1 = textureScale(uSource1,UV);
 	
 	if(val1.a > 0.1){
-		COLOR = val1;
+		COLOR = texture(uSource1,UV);
 	}else {
 		COLOR = texture(uSource2,UV);
 	}

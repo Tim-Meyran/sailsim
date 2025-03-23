@@ -35,7 +35,9 @@ void fragment() {
 	vec3 splat = exp(-dot(p, p) / radius) * color;
 	vec3 base = textureScale(uTarget, UV).xyz;
 	//base = vec3(0,0,0);
-	COLOR = map_value(vec4(base + splat, 1.0));
+	COLOR = map_value(vec4(base , 1.0));//+ splat
+	
+	COLOR = texture(uTarget,UV);
 
 	float x = 0.5 + 0.5 * cos(TIME*1.0);
 	float y = 0.5 + 0.5 * sin(TIME*1.0);

@@ -24,9 +24,9 @@ func _physics_process(delta: float) -> void:
 		var vt :ViewportTexture = water.velocity0.viewport.get_texture()
 		var waterImage : Image = vt.get_image()
 		var col = waterImage.get_pixel(uv.x,uv.y)
-		#rect.texture = vt
-		if obstacleViewPort:
-			rect.texture = obstacleViewPort.get_texture()
+		rect.texture = vt
+		#if obstacleViewPort:
+		#	rect.texture = vt#.get_texture()
 		
 		velicity.x = - 1.0 + 2.0 * col.r 
 		velicity.z = - 1.0 + 2.0 * col.g
