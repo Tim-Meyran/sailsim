@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://v5rqx8r88qnf"]
+
+[ext_resource type="PackedScene" uid="uid://boulnjpcn8f0b" path="res://models/ConeArrow.glb" id="1_itq06"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tf1sd"]
+shading_mode = 0
+albedo_color = Color(1, 0, 0, 1)
+
+[node name="ConeArrow" instance=ExtResource("1_itq06")]
+
+[node name="Cone" parent="." index="0"]
+transform = Transform3D(-1.07093e-08, -1.07093e-08, -0.245, -0.245, 1.05879e-22, 1.07093e-08, 0, 0.245, -1.07093e-08, 0, 0, 0)
+surface_material_override/0 = SubResource("StandardMaterial3D_tf1sd")

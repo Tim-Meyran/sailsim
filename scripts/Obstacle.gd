@@ -7,7 +7,10 @@ var waterShape2D = $WaterShape2D
 var water = %FluidSimPlane
 
 @onready
-var pointer = $Pointer
+var pointer = $ConeArrow
+
+@onready
+var sailTopMarker = $SailTopMarker
 
 @onready
 var camera: Camera3D = $"../../Camera3D"
@@ -61,7 +64,7 @@ func _process(delta: float) -> void:
 			apply_force(Vector3(dx-linear_velocity.x ,0.0,dy-linear_velocity.z)/mass,  Vector3(x/5.0, 0.0, y/5.0))
 
 	if linear_velocity.length() > 0.01:
-		pointer.look_at_from_position(position + linear_velocity.normalized()*2.5,position )
+		pointer.look_at_from_position(sailTopMarker.global_position + linear_velocity.normalized()*3.0,sailTopMarker.global_position )
 
 	apply_force(-position)
 	

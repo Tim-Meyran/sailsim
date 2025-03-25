@@ -8,7 +8,9 @@
 [ext_resource type="Texture2D" uid="uid://6rrf3r87637d" path="res://icon.svg" id="6_ji1bc"]
 [ext_resource type="Script" uid="uid://ktkogsk1q0ak" path="res://scripts/Obstacle.gd" id="8_hw515"]
 [ext_resource type="Shader" uid="uid://x2qydu5tkenl" path="res://shaders/ObjectMaskShader.gdshader" id="8_yvk20"]
+[ext_resource type="PackedScene" uid="uid://v5rqx8r88qnf" path="res://scenes/cone_arrow.tscn" id="9_7t6qd"]
 [ext_resource type="Script" uid="uid://c5mc50534q7fl" path="res://scripts/TouchScreenJoystick.gd" id="9_yvk20"]
+[ext_resource type="Script" uid="uid://ba4rp171idr3y" path="res://scripts/mobile_controls.gd" id="10_em1ke"]
 
 [sub_resource type="Curve3D" id="Curve3D_it3md"]
 closed = true
@@ -97,12 +99,6 @@ shader_parameter/velocity = Vector3(0.5, 0.5, 0.5)
 radius = 10.0
 height = 59.901
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_em1ke"]
-albedo_color = Color(1, 0, 0, 1)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_em1ke"]
-material = SubResource("StandardMaterial3D_em1ke")
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_d6b8u"]
 shader = ExtResource("8_yvk20")
 shader_parameter/velocity = Vector3(0.7, 0.5, 0.5)
@@ -157,6 +153,8 @@ size = Vector2(2200, 100)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.951969, 0.0957213, -0.290847, 0.306194, -0.297601, 0.904256, 0, -0.949879, -0.312617, -7.89279, 18.5242, -6.83234)
+shadow_enabled = true
+shadow_blur = 4.0
 
 [node name="Path3D" type="Path3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.0241213)
@@ -245,21 +243,22 @@ script = ExtResource("8_hw515")
 shape = SubResource("BoxShape3D_yvk20")
 
 [node name="Sailboat" parent="ObstacleViewPort/SailboatObstacle" instance=ExtResource("1_ok0rg")]
-transform = Transform3D(-1, 0, -8.74228e-08, 1.12144e-09, 0.999918, -0.0128278, 8.74156e-08, -0.0128278, -0.999918, 0, 0, 0)
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, -0.281527, 0)
 
 [node name="WaterShape2D" type="MeshInstance2D" parent="ObstacleViewPort/SailboatObstacle"]
 material = SubResource("ShaderMaterial_em1ke")
 position = Vector2(400, 650)
 mesh = SubResource("SphereMesh_t0gps")
 
-[node name="Pointer" type="MeshInstance3D" parent="ObstacleViewPort/SailboatObstacle"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.98671, 2.6, -11.4354)
-mesh = SubResource("CapsuleMesh_em1ke")
-skeleton = NodePath("../../..")
-
 [node name="CameraMarker" type="Marker3D" parent="ObstacleViewPort/SailboatObstacle"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.52274, 5.59211)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.68347, 8.03295)
 gizmo_extents = 1.1
+
+[node name="ConeArrow" parent="ObstacleViewPort/SailboatObstacle" instance=ExtResource("9_7t6qd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.26736, -4.21973)
+
+[node name="SailTopMarker" type="Marker3D" parent="ObstacleViewPort/SailboatObstacle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0101285, -0.633595)
 
 [node name="Obstacle" type="MeshInstance2D" parent="ObstacleViewPort"]
 material = SubResource("ShaderMaterial_d6b8u")
@@ -276,22 +275,27 @@ material = SubResource("ShaderMaterial_t0gps")
 position = Vector2(0, 1000)
 mesh = SubResource("QuadMesh_64eqs")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="MobileControls" type="CanvasLayer" parent="."]
+visible = false
+script = ExtResource("10_em1ke")
 
-[node name="TouchScreenJoystick" type="Control" parent="CanvasLayer"]
+[node name="TouchScreenJoystick" type="Control" parent="MobileControls"]
 layout_mode = 3
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -150.0
-offset_top = -300.0
-offset_right = 150.0
+offset_left = -300.0
+offset_top = -772.0
+offset_right = 300.0
 grow_horizontal = 2
 grow_vertical = 0
-pivot_offset = Vector2(150, 150)
+pivot_offset = Vector2(300, 386)
 script = ExtResource("9_yvk20")
+base_radius = 300.0
+knob_radius = 150.0
+base_thickness = 12.0
 anti_aliased = true
 deadzone = 40.0
 smooth_reset = true
