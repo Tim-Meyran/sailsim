@@ -9,6 +9,12 @@ var water = %FluidSimPlane
 @onready
 var pointer = $Pointer
 
+@onready
+var camera: Camera3D = $"../../Camera3D"
+
+@onready
+var cameraMarker = $CameraMarker
+
 var shader_material:ShaderMaterial
 
 func _ready() -> void:
@@ -29,7 +35,7 @@ func _process(delta: float) -> void:
 	
 	var dx1 = map_range(linear_velocity.x*scalingFactor ,-500,500,0,1) 
 	var dy1 = map_range(linear_velocity.z*scalingFactor ,-500,500,0,1)
-	print(dx1, " ", dy1)
+	#print(dx1, " ", dy1)
 	waterShape2D.position.x = map_range(position.x,-50,50,0,1024)
 	waterShape2D.position.y = map_range(position.z,-50,50,0,1024)
 	waterShape2D.material.set_shader_parameter("velocity", Vector3(dx1,dy1,0.5))
@@ -68,11 +74,15 @@ func _process(delta: float) -> void:
 	if position.z > 45:
 		position.z = 45		 
 		
-	if Input.is_key_pressed(KEY_W):
+	if Input.is_action_pressed("ui_up"):
 		apply_force(2.0*mass*Vector3.FORWARD * quaternion.inverse(),  Vector3.ZERO)
-	if Input.is_key_pressed(KEY_S):
+	if Input.is_action_pressed("ui_down"):
 		apply_force(2.0*mass*Vector3.BACK * quaternion.inverse(),  Vector3.ZERO)
-	if Input.is_key_pressed(KEY_A):
+	if Input.is_action_pressed("ui_left"):
 		apply_torque(mass*Vector3(0,1,0))
-	if Input.is_key_pressed(KEY_D):
+	if Input.is_action_pressed("ui_right"):
 		apply_torque(mass*Vector3(0,-1,0))
+		
+	var p = lerp(camera.global_position,cameraMarker.global_position,delta)
+	camera.look_at_from_position(p,global_position)
+	
